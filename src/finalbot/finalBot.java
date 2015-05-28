@@ -25,8 +25,10 @@ public class finalBot extends AdvancedRobot {
 	public ArrayList _surfDirections;
 	public ArrayList _surfAbsBearings;
 	public static double _oppEnergy = 100.0;
-
-	public void run() {
+	 public static Rectangle2D.Double _fieldRect = new java.awt.geom.Rectangle2D.Double(18, 18, 764, 564);
+	 public static double WALL_STICK = 160;
+	
+	 public void run() {
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		_enemyWaves = new ArrayList();//instantiating the waves
@@ -48,8 +50,8 @@ public class finalBot extends AdvancedRobot {
 				&& _surfDirections.size() > 2) {
 			EnemyWave ew = new EnemyWave();
 			ew.fireTime = getTime() - 1;
-			ew.bulletVelocity = bulletVelocity(bulletPower);
 			ew.distanceTraveled = bulletVelocity(bulletPower);
+			ew.bulletVelocity = bulletVelocity(bulletPower);
 			ew.direction = ((Integer)_surfDirections.get(2)).intValue();
 			ew.directAngle = ((Double)_surfAbsBearings.get(2)).doubleValue();
 			ew.fireLocation = (Point2D.Double)_enemyLocation.clone(); // last tick
@@ -126,6 +128,7 @@ public class finalBot extends AdvancedRobot {
 
 		//scanTime++;
 	}//end of onScannedRobot method
+
 	public void onHitByBullet(HitByBulletEvent e) {//whenever we get hit by a bullet this method will be called
 		// If the _enemyWaves collection is empty, we must have missed the
 		// detection of this wave somehow.
@@ -175,33 +178,26 @@ public class finalBot extends AdvancedRobot {
 				moveAngle += Math.PI;
 				moveDir = -1;
 			}
-
 			moveAngle = Utils.normalRelativeAngle(moveAngle);
-
 			// maxTurning is built in like this, you can't turn more then this in one tick
 			maxTurning = Math.PI/720d*(40d - 3d*Math.abs(predictedVelocity));
 			predictedHeading = Utils.normalRelativeAngle(predictedHeading + limit(-maxTurning, moveAngle, maxTurning));
-
 			// this one is nice ;). if predictedVelocity and moveDir have
 			// different signs you want to breack down
 			// otherwise you want to accelerate (look at the factor "2")
 			predictedVelocity +=
 					(predictedVelocity * moveDir < 0 ? 2*moveDir : moveDir);
 			predictedVelocity = limit(-8, predictedVelocity, 8);
-
 			// calculate the new predicted position
 			predictedPosition = project(predictedPosition, predictedHeading,
 					predictedVelocity);
-
 			counter++;
-
 			if (predictedPosition.distance(surfWave.fireLocation) <
 					surfWave.distanceTraveled + (counter * surfWave.bulletVelocity)
 					+ surfWave.bulletVelocity) {
 				intercepted = true;
 			}
 		} while(!intercepted && counter < 500);
-
 		return predictedPosition;
 	}//end of predicting position
 	public void updateWaves() {//will update the waves to account for the new situation
@@ -291,5 +287,62 @@ public double[] similarPoints(int numNeighbors,  ScannedRobotEvent e)//add all p
 			}
 		return simPoints;
 	}*/
+	class EnemyWave {
+        Point2D.Double fireLocation;
+        long fireTime;
+        double bulletVelocity, directAngle, distanceTraveled;
+        int direction;
+ 
+        public EnemyWave() { }
+    }
+ 
+    public double wallSmoothing(Point2D.Double botLocation, double angle, int orientation) {
+        while (!_fieldRect.contains(project(botLocation, angle, WALL_STICK))) {
+            angle += orientation*0.05;
+        }
+        return angle;
+    }
+ 
+    public static Point2D.Double project(Point2D.Double sourceLocation,
+        double angle, double length) {
+        return new Point2D.Double(sourceLocation.x + Math.sin(angle) * length,
+            sourceLocation.y + Math.cos(angle) * length);
+    }
+ 
+    public static double absoluteBearing(Point2D.Double source, Point2D.Double target) {
+        return Math.atan2(target.x - source.x, target.y - source.y);
+    }
+ 
+    public static double limit(double min, double value, double max) {
+        return Math.max(min, Math.min(value, max));
+    }
+ 
+    public static double bulletVelocity(double power) {
+        return (20.0 - (3.0*power));
+    }
+ 
+    public static double maxEscapeAngle(double velocity) {
+        return Math.asin(8.0/velocity);
+    }
+ 
+    public static void setBackAsFront(AdvancedRobot robot, double goAngle) {
+        double angle =
+            Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
+        if (Math.abs(angle) > (Math.PI/2)) {
+            if (angle < 0) {
+                robot.setTurnRightRadians(Math.PI + angle);
+            } else {
+                robot.setTurnLeftRadians(Math.PI - angle);
+            }
+            robot.setBack(100);
+        } else {
+            if (angle < 0) {
+                robot.setTurnLeftRadians(-1*angle);
+           } else {
+                robot.setTurnRightRadians(angle);
+           }
+            robot.setAhead(100);
+        }
+    }
 }
 
