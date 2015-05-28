@@ -29,8 +29,7 @@ public class WaveBullet
 	{
 		// if the distance from the wave origin to our enemy has passed
 		// the distance the bullet would have traveled...
-		if (Point2D.distance(startX, startY, enemyX, enemyY) <= 
-				(currentTime - fireTime) * getBulletSpeed())
+		if (Point2D.distance(startX, startY, enemyX, enemyY) <= (currentTime - fireTime) * getBulletSpeed())
 		{
 			double desiredDirection = Math.atan2(enemyX - startX, enemyY - startY);
 			double angleOffset = Utils.normalRelativeAngle(desiredDirection - startBearing);

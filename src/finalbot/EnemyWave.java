@@ -1,10 +1,11 @@
 package finalbot;
+
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import robocode.AdvancedRobot;
 import robocode.util.Utils;
 
-class EnemyWave {
+public class EnemyWave {
 	Point2D.Double fireLocation;
 	public long fireTime;
 	public double bulletVelocity, directAngle, distanceTraveled;

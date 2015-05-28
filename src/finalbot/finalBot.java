@@ -9,9 +9,7 @@ import robocode.util.*;
 public class finalBot extends AdvancedRobot {
 	//for dynamic clustering (which was not used due to time constraints)
 	private int scanTime = 1; 
-	private double distance;
-	private double velocity;
-	private double bearing;
+	private double distance, velocity, bearing;
 	private ArrayList<Double> list; 
 	//for shooting guess factors
 	private ArrayList<WaveBullet> waves = new ArrayList<WaveBullet>();
@@ -34,7 +32,6 @@ public class finalBot extends AdvancedRobot {
 		_enemyWaves = new ArrayList();//instantiating the waves
 		_surfDirections = new ArrayList();
 		_surfAbsBearings = new ArrayList();
-
 		do{
 			turnRadarRightRadians(Double.POSITIVE_INFINITY);}while(true);//a do while prevents the robot from not initially moving into this loop
 	}
@@ -56,16 +53,12 @@ public class finalBot extends AdvancedRobot {
 			ew.direction = ((Integer)_surfDirections.get(2)).intValue();
 			ew.directAngle = ((Double)_surfAbsBearings.get(2)).doubleValue();
 			ew.fireLocation = (Point2D.Double)_enemyLocation.clone(); // last tick
-
 			_enemyWaves.add(ew);
 		}
-
 		_oppEnergy = e.getEnergy();
-
 		// update after EnemyWave detection, because that needs the previous
 		// enemy location as the source of the wave
 		_enemyLocation = project(_myLocation, absBearing, e.getDistance());
-
 		updateWaves();
 		doSurfing();
 		//gun code
@@ -73,7 +66,6 @@ public class finalBot extends AdvancedRobot {
 		// find our enemy's location:
 		double ex = getX() + Math.sin(absBearing) * e.getDistance();
 		double ey = getY() + Math.cos(absBearing) * e.getDistance();
-
 		// Let's process the waves now:
 		for (int i=0; i < waves.size(); i++)
 		{
@@ -174,8 +166,8 @@ public class finalBot extends AdvancedRobot {
 
 		do {    // the rest of these code comments are rozu's
 			moveAngle =
-					wallSmoothing(predictedPosition, absoluteBearing(surfWave.fireLocation,
-							predictedPosition) + (direction * (Math.PI/2)), direction)
+					wallSmoothing(predictedPosition, absoluteBearing(surfWave.fireLocation, predictedPosition) + 
+							(direction * (Math.PI/2)), direction)
 							- predictedHeading;
 			moveDir = 1;
 
@@ -188,8 +180,7 @@ public class finalBot extends AdvancedRobot {
 
 			// maxTurning is built in like this, you can't turn more then this in one tick
 			maxTurning = Math.PI/720d*(40d - 3d*Math.abs(predictedVelocity));
-			predictedHeading = Utils.normalRelativeAngle(predictedHeading
-					+ limit(-maxTurning, moveAngle, maxTurning));
+			predictedHeading = Utils.normalRelativeAngle(predictedHeading + limit(-maxTurning, moveAngle, maxTurning));
 
 			// this one is nice ;). if predictedVelocity and moveDir have
 			// different signs you want to breack down
@@ -241,14 +232,9 @@ public class finalBot extends AdvancedRobot {
 		return surfWave;
 	}
 	public static int getFactorIndex(EnemyWave ew, Point2D.Double targetLocation) {
-		double offsetAngle = (absoluteBearing(ew.fireLocation, targetLocation)
-				- ew.directAngle);
-		double factor = Utils.normalRelativeAngle(offsetAngle)
-				/ maxEscapeAngle(ew.bulletVelocity) * ew.direction;
-
-		return (int)limit(0,
-				(factor * ((BINS - 1) / 2)) + ((BINS - 1) / 2),
-				BINS - 1);
+		double offsetAngle = (absoluteBearing(ew.fireLocation, targetLocation) - ew.directAngle);
+		double factor = Utils.normalRelativeAngle(offsetAngle) / maxEscapeAngle(ew.bulletVelocity) * ew.direction;
+		return (int)limit(0, (factor * ((BINS - 1) / 2)) + ((BINS - 1) / 2), BINS - 1);
 	}
 	public void logHit(EnemyWave ew, Point2D.Double targetLocation) {
 		int index = getFactorIndex(ew, targetLocation);
@@ -306,3 +292,4 @@ public double[] similarPoints(int numNeighbors,  ScannedRobotEvent e)//add all p
 		return simPoints;
 	}*/
 }
+
