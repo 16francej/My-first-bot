@@ -95,7 +95,7 @@ public class finalBot extends AdvancedRobot {
 //also for dynamic clustering
 /*
 public double[] similarPoints(int numNeighbors,  ScannedRobotEvent e)//add all points
-	{//determine euclidian distance based upon velocity, distance, and bearing
+	{//determine manhattan distance based upon velocity, distance, and bearing
 		double absBearing = e.getBearingRadians()+getHeadingRadians();
 		double currentDistance = e.getDistance()/(getBattleFieldWidth()*getBattleFieldHeight());
 		double currentVelocity = e.getVelocity()/8;//add to arrayList
