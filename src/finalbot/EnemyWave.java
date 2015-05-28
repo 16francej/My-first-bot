@@ -6,61 +6,60 @@ import robocode.util.Utils;
 
 class EnemyWave {
 	Point2D.Double fireLocation;
-    private long fireTime;
-    private double bulletVelocity, directAngle, distanceTraveled;
-    private int direction;
+	public long fireTime;
+	public double bulletVelocity, directAngle, distanceTraveled;
+	public int direction;
 
-    public static Rectangle2D.Double _fieldRect //creates a theoretical field for the robot to drive on 
-    = new java.awt.geom.Rectangle2D.Double(18, 18, 764, 564);
-    public static double WALL_STICK = 160;//we don't want to run into walls, so this grants us seperation
-    
-    public EnemyWave() { }
+	public static Rectangle2D.Double _fieldRect = new java.awt.geom.Rectangle2D.Double(18, 18, 764, 564);//smaller rectangle than the actual field 
+	public static double WALL_STICK = 160;//we don't want to run into walls, so this grants us separation
 
-public double wallSmoothing(Point2D.Double botLocation, double angle, int orientation) {
-    while (!_fieldRect.contains(project(botLocation, angle, WALL_STICK))) {
-        angle += orientation*0.05;
-    }
-    return angle;
-}
+	public EnemyWave() { }
 
-public static Point2D.Double project(Point2D.Double sourceLocation, double angle, double length) {
-    return new Point2D.Double(sourceLocation.x + Math.sin(angle) * length,
-        sourceLocation.y + Math.cos(angle) * length);
-}
+	public double wallSmoothing(Point2D.Double botLocation, double angle, int orientation) {
+		while (!_fieldRect.contains(project(botLocation, angle, WALL_STICK))) {
+			angle += orientation*0.05;
+		}
+		return angle;
+	}
 
-public static double absoluteBearing(Point2D.Double source, Point2D.Double target) {
-    return Math.atan2(target.x - source.x, target.y - source.y);
-}
+	public static Point2D.Double project(Point2D.Double sourceLocation, double angle, double length) {
+		return new Point2D.Double(sourceLocation.x + Math.sin(angle) * length,
+				sourceLocation.y + Math.cos(angle) * length);
+	}
 
-public static double limit(double min, double value, double max) {
-    return Math.max(min, Math.min(value, max));
-}
+	public static double absoluteBearing(Point2D.Double source, Point2D.Double target) {
+		return Math.atan2(target.x - source.x, target.y - source.y);
+	}
 
-public static double bulletVelocity(double power) {
-    return (20.0 - (3.0*power));
-}
+	public static double limit(double min, double value, double max) {
+		return Math.max(min, Math.min(value, max));
+	}
 
-public static double maxEscapeAngle(double velocity) {
-    return Math.asin(8.0/velocity);
-}
+	public static double bulletVelocity(double power) {
+		return (20.0 - (3.0*power));
+	}
 
-public static void setBackAsFront(AdvancedRobot robot, double goAngle) {
-    double angle =
-        Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
-    if (Math.abs(angle) > (Math.PI/2)) {
-        if (angle < 0) {
-            robot.setTurnRightRadians(Math.PI + angle);
-        } else {
-            robot.setTurnLeftRadians(Math.PI - angle);
-        }
-        robot.setBack(100);
-    } else {
-        if (angle < 0) {
-            robot.setTurnLeftRadians(-1*angle);
-       } else {
-            robot.setTurnRightRadians(angle);
-       }
-        robot.setAhead(100);
-    }
-}
+	public static double maxEscapeAngle(double velocity) {
+		return Math.asin(8.0/velocity);
+	}
+
+	public static void setBackAsFront(AdvancedRobot robot, double goAngle) {
+		double angle =
+				Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
+		if (Math.abs(angle) > (Math.PI/2)) {
+			if (angle < 0) {
+				robot.setTurnRightRadians(Math.PI + angle);
+			} else {
+				robot.setTurnLeftRadians(Math.PI - angle);
+			}
+			robot.setBack(100);
+		} else {
+			if (angle < 0) {
+				robot.setTurnLeftRadians(-1*angle);
+			} else {
+				robot.setTurnRightRadians(angle);
+			}
+			robot.setAhead(100);
+		}
+	}
 }
